@@ -10,13 +10,19 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonProps } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { deleteTeacher } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useTransition } from "react";
+import { cn } from "@/lib/utils";
 
-export function DeleteTeacherButton({ id }: { id: string }) {
+interface DeleteTeacherButtonProps extends ButtonProps {
+  id: string;
+  children?: React.ReactNode;
+}
+
+export function DeleteTeacherButton({ id, children, className, variant, size, ...props }: DeleteTeacherButtonProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
@@ -37,12 +43,20 @@ export function DeleteTeacherButton({ id }: { id: string }) {
       }
     });
   };
+  
+  if (variant === 'ghost' || variant === 'link') {
+    return (
+        <button onClick={handleDelete} disabled={isPending} className={cn('flex items-center', className)}>
+            {children || (isPending ? "Eliminando..." : "Eliminar")}
+        </button>
+    )
+  }
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="icon" disabled={isPending} title="Eliminar">
-          <Trash2 className="h-4 w-4" />
+        <Button variant={variant || "destructive"} size={size || "icon"} disabled={isPending} title="Eliminar" {...props}>
+            {children || <Trash2 className="h-4 w-4" />}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
